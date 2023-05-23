@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import argparse
+import os
 
 def add_cosmic_ids(drugcomb: pd.DataFrame,
                    read_path: str) -> pd.DataFrame:
@@ -35,7 +36,7 @@ def get_smiles(drugcomb: pd.DataFrame,
     
     return drugcomb
 
-def get_target(drugcomb: pd.DataFrame, synergistic_score: str,
+def get_target(drugcomb: pd.DataFrame, synergy_score: str,
                synergistic_threshold: float, antagonistic_threshold: float) -> pd.DataFrame:
     
     def synergy_threshold(value):
@@ -45,7 +46,7 @@ def get_target(drugcomb: pd.DataFrame, synergistic_score: str,
             return 0
         return np.nan
     
-    drugcomb['target'] = drugcomb[f'synergy_{synergistic_score}'].apply(synergy_threshold)
+    drugcomb['target'] = drugcomb[f'synergy_{synergy_score}'].apply(synergy_threshold)
     drugcomb = drugcomb.dropna(subset=['target'])
     
     return drugcomb
@@ -121,11 +122,12 @@ def process_cell_lines(drugcomb: pd.DataFrame,
     cell_line_feats = pd.DataFrame(
         scaler.transform(rma_landm),
         columns=[f'feat_{i}' for i in range(rma_landm.shape[1])],
-        index=rma_landm.index
+        # index=rma_landm.index
     )
+    cell_line_feats["cell_line_name"] = rma_landm.index
     return drugcomb, cell_line_feats
 
-def preprocess_drugcomb(synergistic_score: str,
+def preprocess_drugcomb(synergy_score: str,
                         synergistic_thresh: float,
                         antagonistic_thresh: float,
                         save_cell_lines: bool,
@@ -136,26 +138,30 @@ def preprocess_drugcomb(synergistic_score: str,
     drugcomb = pd.read_csv(read_path + 'summary_v_1_5.csv')
     
     
-    drugcomb = add_cosmic_ids(drugcomb)
+    drugcomb = add_cosmic_ids(drugcomb, read_path)
     drugcomb = formatting(drugcomb)
-    drugcomb = get_smiles(drugcomb)
-    drugcomb = get_target(drugcomb, synergistic_score, synergistic_thresh, antagonistic_thresh)
+    drugcomb = get_smiles(drugcomb, read_path)
+    drugcomb = get_target(drugcomb, synergy_score, synergistic_thresh, antagonistic_thresh)
     drugcomb = drop_duplicates(drugcomb)
-    drugcomb, cell_line_feats = process_cell_lines(drugcomb)
+    drugcomb, cell_line_feats = process_cell_lines(drugcomb, read_path)
     drugcomb = rename_and_crop(drugcomb)
 
     drugcomb = drugcomb.reset_index(drop=True)
-    drugcomb.to_feather(save_path + f"{synergistic_score}.feather")
+
+    directory_name = save_path + synergy_score
+    os.makedirs(directory_name, exist_ok=True)
+        
+    drugcomb.to_feather(f"{directory_name}/{synergy_score}.feather")
     
     if save_cell_lines:
-        cell_line_feats = cell_line_feats.reset_index(drop=False)
+        cell_line_feats = cell_line_feats.reset_index(drop=True)
         cell_line_feats.to_feather(save_path + f"cell_lines.feather")
 
 if __name__ == "__main__":
     print('Preprocessing DrugComb')
 
     parser = argparse.ArgumentParser(description='Preprocessing Drug Comb')
-    parser.add_argument('--synergistic_score', type=str, default="loewe")
+    parser.add_argument('--synergy_score', type=str, default="loewe")
     parser.add_argument('--synergistic_thresh', type=float, default=10.0)
     parser.add_argument('--antagonistic_thresh', type=float, default=-10.0)
     parser.add_argument('--save_cell_lines', type=bool, default=True)
@@ -165,7 +171,7 @@ if __name__ == "__main__":
     print(args)
 
     preprocess_drugcomb(
-        args.synergistic_score,
+        args.synergy_score,
         args.synergistic_thresh,
         args.antagonistic_thresh,
         args.save_cell_lines,

@@ -41,13 +41,13 @@ def calculate_auprc(targets, preds):
     return auc(recall_scores, precision_scores)
 
 def get_datasets(data_folder_path: str, fold_number: int, synergy_score: str, transductive: bool, inductive_set_name: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    cell_lines = pd.read_feather(data_folder_path + f"drugcomb/cell_lines.feather").set_index("cell_line_name")
+    cell_lines = pd.read_feather(data_folder_path + f"cell_lines.feather").set_index("cell_line_name")
     cell_lines = cell_lines.astype(np.float32)
 
     if transductive:
-        dataset = pd.read_feather(data_folder_path + f"drugcomb/{synergy_score}/transductive/{synergy_score}.feather")
+        dataset = pd.read_feather(data_folder_path + f"{synergy_score}/{synergy_score}.feather")
 
-        with open(data_folder_path + f"drugcomb/{synergy_score}/transductive/{synergy_score}.json") as f:
+        with open(data_folder_path + f"{synergy_score}/{synergy_score}.json") as f:
             folds = json.load(f)
 
         fold = folds[f"fold_{fold_number}"]
@@ -55,8 +55,8 @@ def get_datasets(data_folder_path: str, fold_number: int, synergy_score: str, tr
     else:
         inductive_set_name = inductive_set_name
 
-        train_dataset = pd.read_feather(data_folder_path + f"drugcomb/{synergy_score}/{inductive_set_name}/train_{fold_number}.feather")
-        test_dataset = pd.read_feather(data_folder_path + f"drugcomb/{synergy_score}/{inductive_set_name}/test_{fold_number}.feather")
+        train_dataset = pd.read_feather(data_folder_path + f"{synergy_score}/{inductive_set_name}/train_{fold_number}.feather")
+        test_dataset = pd.read_feather(data_folder_path + f"{synergy_score}/{inductive_set_name}/test_{fold_number}.feather")
         dataset = pd.concat((train_dataset, test_dataset))
 
     return dataset, train_dataset, test_dataset, cell_lines

@@ -8,10 +8,10 @@ RANDOM_SEED = 42
 TARGET_COLUMN_NAME = "target"
 SYNERGY_SCORES = ["loewe", "bliss", "hsa", "zip"]
 
-def split_k_fold(synergy_score: str, config: argparse.Namespace):
+def split_k_fold(config: argparse.Namespace):
     folds = {}
 
-    drugcomb = pd.read_feather(config.data_folder_path + f"{synergy_score}/transductive/{synergy_score}.feather")
+    drugcomb = pd.read_feather(config.data_folder_path + f"{config.synergy_score}/{config.synergy_score}.feather")
     drugcomb_indexes = drugcomb.index.values
     drugcomb_targets = drugcomb[TARGET_COLUMN_NAME].values
 
@@ -21,16 +21,16 @@ def split_k_fold(synergy_score: str, config: argparse.Namespace):
         folds[f"fold_{index}"] = {"train": train_indexes.tolist(),
                                   "test": test_indexes.tolist()}
 
-    with open(config.data_folder_path + f"{synergy_score}/transductive/{synergy_score}.json", "w") as file:
+    with open(config.data_folder_path + f"{config.synergy_score}/{config.synergy_score}.json", "w") as file:
         json.dump(folds, file)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Split K Folds')
     parser.add_argument('--fold_number', type=int, default=5)
-    parser.add_argument('--data_folder_path', type=str, default="data/preprocessed/drugcomb")
+    parser.add_argument('--synergy_score', type=str, default="loewe")
+    parser.add_argument('--data_folder_path', type=str, default="data/preprocessed/")
 
     config = parser.parse_args()
     
-    for synergy_score in SYNERGY_SCORES:
-        split_k_fold(synergy_score, config)
+    split_k_fold(config)

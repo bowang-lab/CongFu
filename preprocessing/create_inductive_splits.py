@@ -10,13 +10,13 @@ def sort_drugs(x1: str, x2: str) -> str:
     else:
         return x2 + '_' + x1
     
-def create_inductive_splits(synergistic_score: str,
+def create_inductive_splits(synergy_score: str,
                             num_splits: int,
                             read_path: str,
                             save_path: str
                            ) -> None:
         
-    df = pd.read_feather(read_path + f'{synergistic_score}.feather')
+    df = pd.read_feather(read_path + f'{synergy_score}/{synergy_score}.feather')
     df['sorted_drugs'] = df.apply(lambda x: sort_drugs(x['Drug1_ID'], x['Drug2_ID']), axis=1)
     
     unique_combs = list(set(df['sorted_drugs']))
@@ -30,7 +30,7 @@ def create_inductive_splits(synergistic_score: str,
     
     for split_type in ['leave_comb', 'leave_drug']:
         
-        local_save_path = save_path + f'{synergistic_score}/leave_{split_type}/'
+        local_save_path = save_path + f'{synergy_score}/leave_{split_type}/'
         os.makedirs(local_save_path, exist_ok=True)
         
         for i in range(num_splits):
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     print('Inductive Split DrugComb')
 
     parser = argparse.ArgumentParser(description='Inductive Split DrugComb')
-    parser.add_argument('--synergistic_score', type=str, default="loewe")
+    parser.add_argument('--synergy_score', type=str, default="loewe")
     parser.add_argument('--num_splits', type=int, default=5)
     parser.add_argument('--read_path', type=str, default="data/preprocessed/")
     parser.add_argument('--save_path', type=str, default="data/preprocessed/")
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     print(args)
 
     create_inductive_splits(
-        args.synergistic_score,
+        args.synergy_score,
         args.num_splits,
         args.read_path,
         args.save_path,
