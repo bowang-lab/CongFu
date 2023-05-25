@@ -65,7 +65,7 @@ def train_model(model: nn.Module, config: TrainConfiguration, device: torch.devi
     test_loader = DataLoader(test_set, batch_size=config.batch_size, num_workers=2, shuffle=False)
 
     model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.number_of_epochs)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
 
     loss_fn = nn.BCEWithLogitsLoss()
 
