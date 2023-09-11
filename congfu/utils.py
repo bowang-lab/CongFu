@@ -24,23 +24,29 @@ BONDDIR_LIST = [
     Chem.rdchem.BondDir.ENDDOWNRIGHT
 ]
 
-def split_fold(dataset, fold: dict[str, list[int]]):
+def split_fold(dataset: pd.DataFrame,
+               fold: dict[str, list[int]]
+               ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     train_indices, test_indices = fold["train"], fold["test"]
     X_train = dataset.iloc[train_indices]
     X_test = dataset.iloc[test_indices]
 
     return X_train, X_test
 
-def calculate_roc_auc(targets, preds):
+def calculate_roc_auc(targets: np.array, preds: np.array) -> float:
     return roc_auc_score(targets, preds)
 
-
-def calculate_auprc(targets, preds):
+def calculate_auprc(targets: np.array, preds: np.array) -> float:
     precision_scores, recall_scores, __ = precision_recall_curve(targets, preds)
 
     return auc(recall_scores, precision_scores)
 
-def get_datasets(data_folder_path: str, fold_number: int, synergy_score: str, transductive: bool, inductive_set_name: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def get_datasets(data_folder_path: str,
+                 fold_number: int,
+                 synergy_score: str,
+                 transductive: bool,
+                 inductive_set_name: str
+                 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     cell_lines = pd.read_feather(data_folder_path + f"cell_lines.feather").set_index("cell_line_name")
     cell_lines = cell_lines.astype(np.float32)
 
@@ -61,12 +67,9 @@ def get_datasets(data_folder_path: str, fold_number: int, synergy_score: str, tr
 
     return dataset, train_dataset, test_dataset, cell_lines
 
-def _get_drug_tokens(smiles):
+def _get_drug_tokens(smiles: str) -> Data:
     mol = Chem.MolFromSmiles(smiles)
     mol = Chem.AddHs(mol)
-
-    N = mol.GetNumAtoms()
-    M = mol.GetNumBonds()
 
     type_idx = []
     chirality_idx = []
@@ -100,7 +103,7 @@ def _get_drug_tokens(smiles):
 
     return data
 
-def get_mol_dict(df):
+def get_mol_dict(df: pd.DataFrame) -> dict:
     mols = pd.concat([
         df.rename(columns={'Drug1_ID': 'id', 'Drug1': 'drug'})[['id', 'drug']],
         df.rename(columns={'Drug2_ID': 'id', 'Drug2': 'drug'})[['id', 'drug']]

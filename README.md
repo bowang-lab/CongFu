@@ -12,9 +12,10 @@ Drug synergy, characterized by the amplified combined effect of multiple drugs, 
 The following command will install the required packages for CongFu with virtual environment:
 
 ```bash
-python create -n congfu python=3.9.16
+python create -n congfu python=3.9
 conda activate congfu
-pip install -r requirements.txt
+cd CongFu
+pip install -e .
 ```
 
 ## Loading Preprocessed Data
@@ -30,15 +31,15 @@ To replicate preprocessing:
 * Download `Gene Expression` data and `Drug Combination` data via the commands:
 ```bash
 wget -P ./data/init https://www.cancerrxgene.org/gdsc1000//GDSC1000_WebResources//Data/preprocessed/Cell_line_RMA_proc_basalExp.txt.zip
-unzip ./data/init/Cell_line_RMA_proc_basalExp.txt.zip -d ./data/preprocessed
+unzip ./data/init/Cell_line_RMA_proc_basalExp.txt.zip -d ./data/init
 rm ./data/init/Cell_line_RMA_proc_basalExp.txt.zip
 wget -P ./data/init https://drugcomb.fimm.fi/jing/summary_v_1_5.csv
 ```
 * For each synergy score (`loewe`, `zip`, `hsa`, `bliss`) run following commands:
 ```bash
 python preprocessing/process_drugcomb.py --synergy_score your_score
-python preprocessing/kfold_split.py --synergy_score your_score
-python preprocessing/create_inductive_splits.py --synergy_score your_score
+python preprocessing/create_transductive_splits.py --synergy_score your_score
+python preprocessing/create_transductive_splits.py --synergy_score your_score
 ```
 * Note: the preprocessing is not fully reproducible due to the stochasticity in the splitting stage.
 

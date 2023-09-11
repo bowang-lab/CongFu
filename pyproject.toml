@@ -1,0 +1,29 @@
+[build-system]
+requires = [
+    "setuptools",
+    "numpy==1.23.5",
+    "pandas==1.5.2",
+    "rdkit==2023.3.1",
+    "scikit-learn==1.2.2",
+    "torch==2.0.1",
+    "torch_geometric==2.3.0",
+    "tqdm==4.65.0",
+    "wandb==0.15.2"
+    ]
+build-backend = "setuptools.build_meta"
+
+[metadata]
+name = "CongFu"
+version = "0.1.0"
+authors = [
+  { name="Oleksii Tsepa", email="alextsepa001@gmail.com" },
+  { name="Bohdan Naida", email="bohdan.naida@gmail.com" },
+]
+description = "CongFu: Conditional Graph Fusion for Drug Synergy Prediction"
+readme = "README.md"
+
+[options]
+python_requires = ">=3.9"
+
+[project.urls]
+"Homepage" = "https://github.com/bowang-lab/CongFu"

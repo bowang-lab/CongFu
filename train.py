@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from tqdm import tqdm
 import argparse
 
-from dataset import DrugCombDataset
-from models import CongFuBasedModel
-from utils import get_datasets, get_mol_dict, calculate_auprc, calculate_roc_auc
+from congfu.dataset import DrugCombDataset
+from congfu.models import CongFuBasedModel
+from congfu.utils import get_datasets, get_mol_dict, calculate_auprc, calculate_roc_auc
 
 WANDB_PROJECT = "your_wandb_project_name"
 WANDB_ENTITY = "your_wandb_entity"

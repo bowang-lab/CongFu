@@ -1,11 +1,10 @@
 import torch
 from torch import nn
-from torch.nn import functional as F
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.nn.conv import MessagePassing, GATConv
 from torch_geometric.data import Data 
 
-from layers import CongFuLayer, BasicLayer, GINEConv, create_mlp
+from congfu.layers import CongFuLayer, BasicLayer, GINEConv, create_mlp
 
 NUM_ATOM_TYPE = 119
 NUM_CHIRALITY_TAG = 3
@@ -13,7 +12,15 @@ NUM_BOND_TYPE = 5
 NUM_BOND_DIRECTION = 3
 
 class CongFuBasedModel(nn.Module):
-    def __init__(self, num_layers=5, inject_layer=3, emb_dim=300, mlp_hidden_dims = [256, 128, 64], feature_dim=512, context_dim=908, device=torch.device('cuda')) -> None:
+    def __init__(self,
+                 num_layers=5,
+                 inject_layer=3,
+                 emb_dim=300,
+                 mlp_hidden_dims = [256, 128, 64],
+                 feature_dim=512,
+                 context_dim=908,
+                 device=torch.device('cuda')
+                 ):
         super().__init__()
         self.emb_dim = emb_dim
         self.device = device

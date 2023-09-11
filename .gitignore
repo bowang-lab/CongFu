@@ -1,1 +1,4 @@
 __pycache__/
+data/preprocessed/
+data/init/Cell_line_RMA_proc_basalExp.txt
+data/init/summary_v_1_5.csv

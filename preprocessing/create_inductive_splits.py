@@ -30,7 +30,7 @@ def create_inductive_splits(synergy_score: str,
     
     for split_type in ['leave_comb', 'leave_drug']:
         
-        local_save_path = save_path + f'{synergy_score}/leave_{split_type}/'
+        local_save_path = os.path.join(save_path, synergy_score, split_type)
         os.makedirs(local_save_path, exist_ok=True)
         
         for i in range(num_splits):
@@ -44,8 +44,8 @@ def create_inductive_splits(synergy_score: str,
             test = df[test_mask].reset_index(drop=True)
             train = df[~test_mask].reset_index(drop=True)
 
-            train.to_feather(local_save_path + f'train_{i}.feather')
-            test.to_feather(local_save_path + f'test_{i}.feather')
+            train.to_feather(os.path.join(local_save_path, f'train_{i}.feather'))
+            test.to_feather(os.path.join(local_save_path, f'test_{i}.feather'))
     
     
 if __name__ == "__main__":

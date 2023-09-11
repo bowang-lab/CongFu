@@ -1,8 +1,8 @@
 from sklearn.model_selection import StratifiedKFold
 import pandas as pd
-from sklearn.model_selection import train_test_split
 import json
 import argparse
+import os
 
 RANDOM_SEED = 42
 TARGET_COLUMN_NAME = "target"
@@ -10,8 +10,8 @@ SYNERGY_SCORES = ["loewe", "bliss", "hsa", "zip"]
 
 def split_k_fold(config: argparse.Namespace):
     folds = {}
-
-    drugcomb = pd.read_feather(config.data_folder_path + f"{config.synergy_score}/{config.synergy_score}.feather")
+    read_path = os.path.join(config.data_folder_path, config.synergy_score, f"{config.synergy_score}.feather")
+    drugcomb = pd.read_feather(read_path)
     drugcomb_indexes = drugcomb.index.values
     drugcomb_targets = drugcomb[TARGET_COLUMN_NAME].values
 
@@ -21,7 +21,8 @@ def split_k_fold(config: argparse.Namespace):
         folds[f"fold_{index}"] = {"train": train_indexes.tolist(),
                                   "test": test_indexes.tolist()}
 
-    with open(config.data_folder_path + f"{config.synergy_score}/{config.synergy_score}.json", "w") as file:
+    save_path = os.path.join(config.data_folder_path, config.synergy_score, f"{config.synergy_score}.json")
+    with open(save_path, "w") as file:
         json.dump(folds, file)
 
 
