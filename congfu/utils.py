@@ -27,6 +27,9 @@ BONDDIR_LIST = [
 def split_fold(dataset: pd.DataFrame,
                fold: dict[str, list[int]]
                ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    
+    '''Splits data into the folds'''
+
     train_indices, test_indices = fold["train"], fold["test"]
     X_train = dataset.iloc[train_indices]
     X_test = dataset.iloc[test_indices]
@@ -47,6 +50,9 @@ def get_datasets(data_folder_path: str,
                  transductive: bool,
                  inductive_set_name: str
                  ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    
+    '''Prepares all input datasets for the model based on the evaluation setup and synergy score'''
+
     cell_lines = pd.read_feather(data_folder_path + f"cell_lines.feather").set_index("cell_line_name")
     cell_lines = cell_lines.astype(np.float32)
 
@@ -68,6 +74,9 @@ def get_datasets(data_folder_path: str,
     return dataset, train_dataset, test_dataset, cell_lines
 
 def _get_drug_tokens(smiles: str) -> Data:
+
+    '''Converts SMILES to PyG Data format'''
+
     mol = Chem.MolFromSmiles(smiles)
     mol = Chem.AddHs(mol)
 
@@ -104,6 +113,9 @@ def _get_drug_tokens(smiles: str) -> Data:
     return data
 
 def get_mol_dict(df: pd.DataFrame) -> dict:
+
+    '''Returns the mapping between IDs and molecular graphs'''
+
     mols = pd.concat([
         df.rename(columns={'Drug1_ID': 'id', 'Drug1': 'drug'})[['id', 'drug']],
         df.rename(columns={'Drug2_ID': 'id', 'Drug2': 'drug'})[['id', 'drug']]

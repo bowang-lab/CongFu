@@ -41,7 +41,6 @@ python preprocessing/process_drugcomb.py --synergy_score your_score
 python preprocessing/create_transductive_splits.py --synergy_score your_score
 python preprocessing/create_transductive_splits.py --synergy_score your_score
 ```
-* Note: the preprocessing is not fully reproducible due to the stochasticity in the splitting stage.
 
 ## Training
 

@@ -1,14 +1,16 @@
+import argparse
+from dataclasses import dataclass
+
 import torch
+import wandb
 from torch import nn
 from torch_geometric.loader import DataLoader
-import wandb
-from dataclasses import dataclass
 from tqdm import tqdm
-import argparse
 
 from congfu.dataset import DrugCombDataset
 from congfu.models import CongFuBasedModel
-from congfu.utils import get_datasets, get_mol_dict, calculate_auprc, calculate_roc_auc
+from congfu.utils import (calculate_auprc, calculate_roc_auc, get_datasets,
+                          get_mol_dict)
 
 WANDB_PROJECT = "your_wandb_project_name"
 WANDB_ENTITY = "your_wandb_entity"

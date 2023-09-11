@@ -15,7 +15,9 @@ def create_inductive_splits(synergy_score: str,
                             read_path: str,
                             save_path: str
                            ) -> None:
-        
+
+    '''Returns k train/test inductive splits'''
+
     df = pd.read_feather(read_path + f'{synergy_score}/{synergy_score}.feather')
     df['sorted_drugs'] = df.apply(lambda x: sort_drugs(x['Drug1_ID'], x['Drug2_ID']), axis=1)
     

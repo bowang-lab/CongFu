@@ -9,6 +9,9 @@ TARGET_COLUMN_NAME = "target"
 SYNERGY_SCORES = ["loewe", "bliss", "hsa", "zip"]
 
 def split_k_fold(config: argparse.Namespace):
+
+    '''Returns k train/test transductive splits from stratified cross-validation'''
+
     folds = {}
     read_path = os.path.join(config.data_folder_path, config.synergy_score, f"{config.synergy_score}.feather")
     drugcomb = pd.read_feather(read_path)

@@ -1,13 +1,17 @@
-import torch 
+from typing import Tuple
+
+import torch
 from torch import nn
 from torch.nn import functional as F
+from torch_geometric.data import Data
 from torch_geometric.nn.conv import MessagePassing
-from torch_geometric.data import Data 
 from torch_geometric.utils import add_self_loops
-from typing import Union, Tuple
 
 
 class ContextPropagation(nn.Module):
+
+    '''Propagates graph data conditionally on the context'''
+
     def __init__(self, context_input_dim: int, graph_input_dim: int, out_channels: int) -> None:
         super().__init__()
         self.context_linear = nn.Linear(context_input_dim, out_channels, bias = True)
@@ -26,6 +30,9 @@ class ContextPropagation(nn.Module):
 
 
 class GINEConv(MessagePassing):
+
+    '''Custom GINEConv layer with edge embeddings'''
+
     def __init__(self, input_dim: int, output_dim: int, num_bond_type: int, num_bond_direction: int) -> None:
         super().__init__()
 
@@ -47,7 +54,7 @@ class GINEConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
-        edge_embeddings = self.edge_embedding1(edge_attr[:, 0]) # + self.edge_embedding2(edge_attr[:, 1])
+        edge_embeddings = self.edge_embedding1(edge_attr[:, 0])
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 
@@ -59,6 +66,9 @@ class GINEConv(MessagePassing):
     
 
 class GraphUpdate(nn.Module):
+
+    '''MPNN -> BN -> ReLU'''
+
     def __init__(self, gnn: MessagePassing, output_dim: int, use_relu: bool = True) -> None:
         super().__init__()
         self.gnn = gnn
@@ -77,6 +87,9 @@ class GraphUpdate(nn.Module):
         return graph
         
 class Bottleneck(nn.Module):
+
+    '''Returns updated context with two graphs and context as input'''
+
     def __init__(self, gnn: MessagePassing) -> None:
         super().__init__()
         self.gnn = gnn
@@ -88,6 +101,9 @@ class Bottleneck(nn.Module):
         return local_context_A + local_context_B
 
 class BasicLayer(nn.Module):
+
+    '''Wrapper over GraphUpdate. Returns updated graph states'''
+
     def __init__(self, out_channels: int, graph_update_gnn: MessagePassing, last_layer: bool = False):
         super().__init__()
         self.graph_update = GraphUpdate(graph_update_gnn, out_channels, use_relu= not last_layer)
@@ -103,6 +119,9 @@ class BasicLayer(nn.Module):
 
 
 class CongFuLayer(nn.Module):
+
+    '''Combines ContextPropagation, GraphUpdate and Bottleneck. Returns all updated inputs'''
+
     def __init__(self, context_input_dim: int, graph_input_dim: int, out_channels: int,
                  graph_update_gnn: MessagePassing, bottleneck_gnn: MessagePassing, last_layer: bool = False):
         super().__init__()
@@ -120,6 +139,7 @@ class CongFuLayer(nn.Module):
         return graphA, graphB, context
 
 class LinearBlock(nn.Module):
+
     ''' Linear -> LeakyReLU -> Dropout'''
 
     def __init__(self, input_dim: int, output_dim: int, activation = "relu", dropout: int = 0.0, slope: float = -0.01):
@@ -138,6 +158,9 @@ class LinearBlock(nn.Module):
 
 
 def create_mlp(input_dim: int, hidden_dims: list[int], output_dim: int, activation: str, dropout: float = 0.0, slope: float = -0.01) -> nn.Sequential:
+
+    '''Returns MLP with specific parameters'''
+
     mlp = nn.Sequential(
         LinearBlock(input_dim, hidden_dims[0], activation, dropout, slope),
         *[LinearBlock(input_, output_, activation, dropout, slope=slope) for input_, output_ in zip(hidden_dims, hidden_dims[1:])],

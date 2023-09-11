@@ -6,6 +6,9 @@ DRUG2_ID_COLUMN_NAME= "Drug2_ID"
 CELL_LINE_COLUMN_NAME = "Cell_Line_ID"
 
 class DrugCombDataset(Dataset):
+
+    '''Dataset class that returns all model inputs and a target'''
+
     def __init__(self, drugcomb, cell_lines, mol_mapping, transform=None):
         self.drugcomb = drugcomb
         self.mol_mapping = mol_mapping
